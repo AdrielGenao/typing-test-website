@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+    <body style="background-color: lightgrey;">
+        <style>
+            span {
+                white-space: pre-wrap;
+                font-family: Monospace;
+                font-size: 26px;
+            }
+            h2 {
+                font-family: Monospace;
+                font-size: 33px;
+                text-align: center;
+            }
+            div {
+                font-family: Monospace;
+                font-size: 26px;
+            }
+            button {
+                font-family: Monospace;
+                font-size: 25px;
+                background-color: "#F5F5F5";
+                border: solid black 2px;
+                border-radius: 5px;
+            }
+        </style>
+        <h2>Typing Test</h2>
+        <div id="speed" style="float:left;"></div>
+        <div>
+            <button id="refresh" style="float:right;">New Test</button>
+            <span style="float:right;">   </span>
+            <button id="reset" style="float:right;">Reset</button>
+            <span style="float:right;">   </span>
+            <button id="60sec" style="float:right; font-weight:bold;" tabindex="0">1:00</button>
+            <span style="float:right;">   </span>
+            <button id="30sec" style="float:right;">0:30</button>
+            <span style="float:right;">   </span>
+            {%if testnum==0%}
+                <span style="float:right; font-size:26px;" id="testNum">Test: #1{{testnum}}</span>
+            {%else%}
+                <span style="float:right; font-size:26px;" id="testNum">Test: #{{testnum}}</span>
+            {%endif%}
+        </div>
+        <br>
+        <br>
+        <div id="typing" tabindex="1" onblur="myFocus()" contenteditable="false" style="border-style:solid;" ></div>
+        <div id="display"></div>
+        <br>
+        <span>Sign up or Login to save your score and compete on the leaderboard!</span>
+        <br>
+        <br>
+        <button id="signupButton">Sign Up</button>
+        <span>    </span>
+        <button id="loginButton">Login</button>
+    </body>
+    <script>
+        document.getElementById("60sec").addEventListener("click", function(){  // If 60 seconds button pressed
+            var URL="/{{testnum}}";
+            window.open(URL,"_self");  // Redirect back to infinite time limit page
+        });
+        document.getElementById("30sec").addEventListener("click", function(){  // If 30 seconds button pressed
+            var URL="/30sec/{{testnum}}";
+            window.open(URL,"_self");  // Redirect to 30 second time limit page
+        });
+        document.getElementById("refresh").addEventListener("click", function(){  // Gives new test
+            var testNum=parseInt("{{testnum}}");  // Get variable of current test
+            testNum+=1;  // Add one to go to next test string in list of tests
+            var URL="/60sec/"+testNum;  // Create URL with new test variable, redirecting back to this page
+            window.open(URL,"_self");  // Redirect to this page with new test
+        });
+        document.getElementById("signupButton").addEventListener("click",function(){  // Sign up page
+            var URL="/signup/{{testnum}}";
+            window.open(URL,"_self");
+        });
+       document.getElementById("loginButton").addEventListener("click",function(){  // Login page
+            var URL="/login/{{testnum}}";
+            window.open(URL,"_self");
+        });
+        document.getElementById("reset").addEventListener("click", function(){  // Resets test
+            var URL="/60sec/{{testnum}}";
+            window.open(URL,"_self");
+        });
+        var typingDiv=document.getElementById("typing");  // Variable to element of div to write letters
+        typingDiv.focus();  // Autofocus to typing div at start of site
+        function myFocus(){
+            setTimeout(function(){typingDiv.focus();}, 0.01);  // Auto focus function to always be focused on typing div
+        }
+        typingDiv.focus();  // Focus wepage to typing div
+        document.getElementById("speed").innerHTML="<span>WPM: 0</span>";  // Setting up Div to display WPM as user types
+        var currentLetter=0;  // Number used for comparing typed letter which the correct letter that should be typed
+        let letters=new Array(1);  // Array to hold spanned (colored) letters
+        letters.pop();  // Setting up array correctly to hold nothing
+        var startedType=false;  // Boolean used for starting time at the first letter-key press
+        var finished=false;  // Boolean used for starting and ending typing process so user can't type after finishing
+        var startTime;  // Variable outside of keypress scope to hold start-time
+        var test="{{test}}".replaceAll("&#34;","\"").replaceAll("&#39;","\'");;  // Test imported from python file, and replaces any double and single quotes used in the test
+        var totalHTML="";  // HTML to hold inital test
+        var seconds=0;  // Counter for seconds; starts when user starts typing
+        let speedUpdater; // Variable to hold intervalID for updating speed
+        for(var i=0;i<test.length;i++){
+          letters.push("<span>"+test[i]+"</span>")  // Each character will be a span element with no background, and placed into letters array
+        }
+        letters[0]="<u>"+letters[0]+"</u>";  // Setting underline for first character to signify user to start typing
+        for(var i=0;i<letters.length;i++){
+          totalHTML+=letters[i];  // Creating total HTML from every character in letters array
+        }
+        typingDiv.innerHTML=totalHTML;  // Setting initial HTML to div
+        function updateTest(){  // Function for calculating speed and ending test, called by speedUpdater interval
+            seconds+=1;  // Adding 1 to seconds count
+            if((60-seconds)>=10){  // Updating time while seconds left is over 10 to not have to add extra 0 to clock
+                document.getElementById("60sec").textContent="0:"+(60-seconds);
+            }
+            else{  // Updating time when seconds falls below 10, to add extra 0
+                document.getElementById("60sec").textContent="0:0"+(60-seconds);
+            }
+            if(seconds==60){  // Checking if time has finished for test
+                var correct=0;  // Variable to hold correct letters typed
+                for(var a=0;a<letters.length;a++){
+                    if(letters[a].includes("lime")){  // Matching with correct-color background
+                        correct+=1;  // Correct letters typed
+                    }
+                }
+                var accuracy=Math.round(((correct/currentLetter)*100)*100)/100;  //  Accuracy percentage calculation
+                var speed=Math.round((((correct/5)/seconds)*60));  // Speed by WPM calculation
+                document.getElementById("speed").innerHTML="<span>WPM: "+speed+"</span>";  // Changing WPM counter to match final score
+                document.getElementById("display").textContent="Speed: "+speed+" WPM, accuracy: "+accuracy+"%";  // Displaying score and speed  // Displaying score and speed
+                finished=true;  // Setting started equal to true to not allow more typing afterward
+                clearInterval(speedUpdater);  // Stopping function to freeze speed after test is finished
+                speedUpdater=undefined;  // Setting updater to null
+                }
+            else{
+                var correct=0;  // Variable for calculating correct characters typed
+                for(var a=0;a<letters.length;a++){
+                        if(letters[a].includes("lime")){  // Matching with correct-color background
+                            correct+=1;  // Correct letters typed
+                        }
+                    }
+                var speed=Math.round((((correct/5)/seconds)*60));  // Calculating WPM
+                document.getElementById("speed").innerHTML="<span>WPM: "+speed+"</span>";  // Adding in speed into div to display to user
+            }
+        }
+        typingDiv.addEventListener('keydown', function(event){
+            if(!finished){
+                if(event.key=="Backspace" && letters.length>=1 && currentLetter>0){  // If backspace pressed, and it's not the very beginning of the typing box
+                    currentLetter-=1;  // Push back current letter by one
+                    var letterHTML="";  // Empty string to hold HTML of letters
+                    letters[currentLetter]="<u><span>"+test[currentLetter]+"</span></u>";  // Make the last typed character have no colored background, and have underline
+                    for(var i=currentLetter+1;i<letters.length;i++){
+                            letters[i]="<span>"+test[i]+"</span>"  // Rewrite all characters after current one to have no underline/background
+                        }
+                    for(var i=0;i<letters.length;i++){
+                            letterHTML+=letters[i];  // Create string of HTML of all span elements
+                        }
+                    typingDiv.innerHTML=letterHTML;  // Fill in HTML into div
+                }
+                else if(event.key.length==1){  // Checking to see if only a letter-key has been pressed
+                    if(!startedType){  // Starting time
+                    startedType=true;  // Setting variable to true to only have these lines run once
+                    startTime=new Date().getTime();  // Setting beginning time to startTime variable
+                    speedUpdater=setInterval(updateTest,1000);  // Function to update speed every second; starts when user starts typing
+                    }
+                    if(event.key==' '){  // Preventing space scrolling
+                        event.preventDefault();
+                    }
+                    var letterHTML="";  // Empty string to hold HTML of letters
+                    if(event.key==test.charAt(currentLetter)){  // If correct match
+                        letters[currentLetter]="<span style='background-color:lime;'>"+test[currentLetter]+"</span>";  // Set background of current element to green
+                        if(currentLetter<test.length-1){  // Checking if not last character to type
+                        letters[currentLetter+1]="<u>"+letters[currentLetter+1]+"</u>";  // Underline next character over
+                        }
+                        for(var i=0;i<letters.length;i++){
+                            letterHTML+=letters[i];  // Create string of HTML of all span elements
+                        }
+                        typingDiv.innerHTML=letterHTML;  // Set div to HTML string created
+                    }
+                    else if(event.key!=test.charAt(currentLetter)){  // If incorrect match
+                        letters[currentLetter]="<span style='background-color:orange;'>"+test[currentLetter]+"</span>";  // Set background of current element to orange
+                        if(currentLetter<test.length-1){  // Checking if not last character to type
+                            letters[currentLetter+1]="<u>"+letters[currentLetter+1]+"</u>";  // Underline next character over
+                        }
+                        for(var i=0;i<letters.length;i++){
+                            letterHTML+=letters[i];  // Create string of HTML of all span elements
+                        }
+                        typingDiv.innerHTML=letterHTML;  // Set div to HTML string created
+                    }
+                    currentLetter+=1;  // Move current letter up by one
+                }
+                if(currentLetter==test.length){  // Calculations for final speed and accuracy
+                    var endTime=new Date().getTime();  // Getting ending time
+                    var fullTime=(endTime-startTime)/1000;  // Calculating time in seconds
+                    var correct=0;  // Variable to hold correct letters typed
+                    for(var a=0;a<letters.length;a++){
+                        if(letters[a].includes("lime")){  // Matching with correct-color background
+                            correct+=1;  // Correct letters typed
+                        }
+                    }
+                    var accuracy=Math.round(((correct/test.length)*100)*100)/100;  //  Accuracy percentage calculation
+                    var speed=Math.round((((correct/5)/fullTime)*60));  // Speed by WPM calculation
+                    document.getElementById("speed").innerHTML="<span>WPM: "+speed+"</span>";  // Changing WPM counter to match final score
+                    document.getElementById("display").textContent="Speed: "+speed+" WPM, accuracy: "+accuracy+"%";  // Displaying score and speed  // Displaying score and speed
+                    finished=true;  // Setting started equal to true to not allow more typing afterward
+                    clearInterval(speedUpdater);  // Stopping function to freeze speed after test is finished
+                    speedUpdater=undefined;  // Setting updater to null
+                }
+            }
+        });
+    </script>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <body style="background-color: lightgrey; font-family: Monospace;">
+        <style>
+            h2 {
+                font-family: Monospace;
+                font-size: 39px;
+                text-align: center;
+            }
+            label {
+                font-family: Monospace;
+                font-size: 26px;
+                display: table-cell;
+                text-align: right;
+            }
+            input {
+                font-family: Monospace;
+                font-size: 26px;
+                display: table-cell;
+            }
+            div {
+                font-family: Monospace;
+                font-size: 26px;
+            }
+            p {
+                font-family: Monospace;
+                font-size: 26px;
+                display: table-row;
+            }
+            button {
+                font-family: Monospace;
+                font-size: 25px;
+                background-color: "#F5F5F5";
+                border: solid black 2px;
+                border-radius: 5px;
+            }
+        </style>
+        <button id="back">Back to Testing Page</button>
+        <button id="signup" style="margin-left:30px;">Sign up here!</button>
+        <h2>Log In</h2>
+        <h2 style="font-size:30px">Log in to save your score and compete on the leaderboard!</h2>
+        <form action="/loginComplete" target="_self" method="post" style="display:table;">
+            <p>
+                <label for="username">Enter username:</label>
+                <input type="text" id="username" name="username" maxlength="20">
+            </p>
+            <br>
+            <p>
+                <label for="password">Enter password:</label>
+                <input type="password" id="password" name="password" maxlength="15">
+            </p>
+            <br>
+            <br>
+            <input type="hidden" name="testnum" value="{{testnum}}">
+            <input type="submit" value="Submit" style="font-size:22px;">
+        </form>
+        <p>Incorrect Username and/or Password! Please try again</p>
+    </body>
+    <script>
+        document.getElementById("back").addEventListener("click",function(){  // Back button
+            var URL="/{{testnum}}";
+            window.open(URL,"_self");
+        });
+        document.getElementById("signup").addEventListener("click", function(){  // Signup button
+            var URL="/signup/{{testnum}}";
+            window.open(URL,"_self");
+        });
+    </script>
+</html>

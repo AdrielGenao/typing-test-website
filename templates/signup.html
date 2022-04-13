@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <body style="background-color: lightgrey; font-family: Monospace;">
+        <style>
+            h2 {
+                font-family: Monospace;
+                font-size: 39px;
+                text-align: center;
+            }
+            label {
+                font-family: Monospace;
+                font-size: 26px;
+                display: table-cell;
+                text-align: right;
+            }
+            input {
+                font-family: Monospace;
+                font-size: 26px;
+                display: table-cell;
+            }
+            div {
+                font-family: Monospace;
+                font-size: 26px;
+            }
+            p {
+                font-family: Monospace;
+                font-size: 26px;
+                display: table-row;
+            }
+            button {
+                font-family: Monospace;
+                font-size: 25px;
+                background-color: "#F5F5F5";
+                border: solid black 2px;
+                border-radius: 5px;
+            }
+        </style>
+        <button id="back">Back to Testing Page</button>
+        <button id="login" style="margin-left:30px;">Login here!</button>
+        <h2>Signup</h2>
+        <h2 style="font-size:30px;">Sign Up to save your score and compete on the leaderboard!</h2>
+        <form action="/signupComplete" target="_self" method="post" onsubmit="return confirming()" style="display:table;">
+            <p>
+                <label for="username">Enter a username (Limit of 20 characters):</label>
+                <input type="text" id="username" name="username" maxlength="20">
+            </p>
+            <br>
+            <p>
+                <label for="password">Enter a password (Limit of 15 characters):</label>
+                <input type="password" id="password" name="password" maxlength="15">
+            </p>
+            <br>
+            <p>
+                <label for="confirm">Confirm password:</label>
+                <input type="password" id="confirm" name="confirm" maxlength="15">
+            </p>
+            <br>
+            <p>
+                <div id="confirmStatus" style="text-align:right;"></div>
+            </p>
+            <br>
+            <input type="hidden" name="testnum" value="{{testnum}}">
+            <input type="submit" value="Submit" style="font-size:22px;">
+        </form>
+    </body>
+    <script>
+        document.getElementById("back").addEventListener("click",function(){  // Back button
+            var URL="/{{testnum}}";
+            window.open(URL,"_self");
+        });
+        document.getElementById("login").addEventListener("click", function(){  // Login button
+            var URL="/login/{{testnum}}";
+            window.open(URL,"_self");
+        });
+        function confirming(){  // Function for confirming if signup requirements are met when pressing submit button
+            if(document.getElementById("username").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Username must be at least 1 character!";
+                return false;
+            }
+            else if(document.getElementById("password").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Password must be at least 1 character!";
+                return false;
+            }
+            else if(document.getElementById("password").value !== document.getElementById("confirm").value){  // If no password match - show error
+                document.getElementById("confirmStatus").textContent="Passwords do not match!";
+                return false;
+            }
+            else{  // If all requirements are met
+                document.getElementById("confirmStatus").textContent=""; // Show no error
+                return true;
+            }
+        };
+
+        document.getElementById("username").addEventListener("keyup",function(){  // Checking for requirements for username
+            if(document.getElementById("username").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Username must be at least 1 character!";
+            }
+            else if(document.getElementById("password").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Password must be at least 1 character!";
+            }
+            else if(document.getElementById("password").value !== document.getElementById("confirm").value){  // If no password match - show error
+                document.getElementById("confirmStatus").textContent="Passwords do not match!";
+            }
+            else{  // If all requirements are met
+                document.getElementById("confirmStatus").textContent=""; // Show no error
+            }
+        });
+        document.getElementById("password").addEventListener("keyup",function(){  // Checking for requirements for password
+            if(document.getElementById("username").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Username must be at least 1 character!";
+            }
+            else if(document.getElementById("password").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Password must be at least 1 character!";
+            }
+            else if(document.getElementById("password").value !== document.getElementById("confirm").value){  // If no password match - show error
+                document.getElementById("confirmStatus").textContent="Passwords do not match!";
+            }
+            else{  // If all requirements are met
+                document.getElementById("confirmStatus").textContent=""; // Show no error
+            }
+        });
+        document.getElementById("confirm").addEventListener("keyup",function(){  // Checking for requirements for password and confirm password
+            if(document.getElementById("username").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Username must be at least 1 character!";
+            }
+            else if(document.getElementById("password").value.length==0){  // If not enough characters - show error
+                document.getElementById("confirmStatus").textContent="Password must be at least 1 character!";
+            }
+            else if(document.getElementById("password").value !== document.getElementById("confirm").value){  // If no password match - show error
+                document.getElementById("confirmStatus").textContent="Passwords do not match!";
+            }
+            else{  // If all requirements are met
+                document.getElementById("confirmStatus").textContent=""; // Show no error
+            }
+        });
+    </script>
+</html>
